@@ -15,13 +15,13 @@ COPY pkg ./pkg
 ARG TARGETPLATFORM
 ENV CGO_ENABLED=0 GOOS=linux
 RUN GOARCH=$(echo "$TARGETPLATFORM" | cut -f2 -d/) \
-    GOARM=$(echo "$TARGETPLATFORM" | cut -f3 -d/ | cut -c2-) \
-    go build -v -ldflags '-extldflags "-static"' -o ./synology-csi-driver .
+	GOARM=$(echo "$TARGETPLATFORM" | cut -f3 -d/ | cut -c2-) \
+	go build -v -ldflags '-extldflags "-static"' -o ./synology-csi-driver .
 
 ############## Final stage ##############
 FROM alpine:latest as driver
 LABEL maintainers="Synology Authors" \
-      description="Synology CSI Plugin"
+	description="Synology CSI Plugin"
 
 RUN <<-EOF
 	apk add --no-cache \
@@ -43,7 +43,7 @@ EOF
 WORKDIR /
 COPY --chmod=777 <<-"EOF" /csibin/nsenter.sh
 	#!/usr/bin/env bash
-	iscsid_pid=$(pgrep iscsid | head -n 1)
+	iscsid_pid=$(pgrep ext-iscsid | head -n 1)
 	BIN="$(basename "$0")"
 	nsenter --mount="/proc/${iscsid_pid}/ns/mnt" --net="/proc/${iscsid_pid}/ns/net" -- "$BIN" "$@"
 EOF
